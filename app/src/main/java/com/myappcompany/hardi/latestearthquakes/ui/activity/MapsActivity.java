@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -16,7 +17,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -55,6 +59,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private RequestQueue queue;
 
     private ProgressBar progressBar;
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,7 +206,74 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         detailsUrl = geoJsonObj.getString("url");
                     }
-                    Log.d("URL", detailsUrl);
+                    getMoreDetails(detailsUrl);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+    public void getMoreDetails(String url){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                dialogBuilder = new AlertDialog.Builder(MapsActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.popup, null);
+
+                Button dismissButton = view.findViewById(R.id.dismissPop);
+                Button dismissButtonTop = view.findViewById(R.id.dismissPopTop);
+                TextView popList = view.findViewById(R.id.popList);
+                WebView htmlPop = view.findViewById(R.id.htmlWebView);
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                try {
+
+                    if(response.has("tectonicSummary") &&  response.getString("tectonicSummary") != null){
+                        JSONObject tectonic = response.getJSONObject("tectonicSummary");
+                        if(tectonic.has("text") && tectonic.getString("text") != null){
+                            String text = tectonic.getString("text");
+                            htmlPop.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
+                        }
+                    }
+
+                    JSONArray cities = response.getJSONArray("cities");
+                    for(int i = 0; i < cities.length(); i++){
+                        JSONObject citiesObj = cities.getJSONObject(i);
+
+                        stringBuilder.append("City: " + citiesObj.getString("name")
+                         + "\n" + "Distance: " + citiesObj.getString("distance")
+                         + "\n" + "Population: " + citiesObj.getString("population"));
+
+                        stringBuilder.append("\n\n");
+                    }
+                    popList.setText(stringBuilder);
+                    dismissButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dismissButtonTop.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialogBuilder.setView(view);
+                    dialog = dialogBuilder.create();
+                    dialog.show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
