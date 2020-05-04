@@ -1,4 +1,4 @@
-package com.myappcompany.hardi.latestearthquakes.ui.adapter;
+package com.myappcompany.hardi.latestearthquakes.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
