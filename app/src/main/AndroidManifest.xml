@@ -11,9 +11,11 @@
         android:icon="@mipmap/ic_launcher_new"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_new_round"
+        android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activity.QuakesListActivity"></activity>
+        <activity android:name=".ui.activity.QuakesListActivity"
+            android:parentActivityName=".ui.activity.MapsActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

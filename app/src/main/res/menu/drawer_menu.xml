@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item android:title="@string/view">
+            <menu>
+                <item
+                    android:id="@+id/nav_show_map"
+                    android:icon="@drawable/ic_show_as_map"
+                    android:title="@string/show_as_map"/>
+
+                <item
+                    android:id="@+id/nav_show_list"
+                    android:icon="@drawable/ic_show_as_list"
+                    android:title="@string/show_as_list"/>
+            </menu>
+        </item>
+    </group>
+
+    <item android:title="@string/instructions">
+        <menu>
+            <item
+                android:id="@+id/nav_info"
+                android:icon="@drawable/ic_info"
+                android:title="@string/info" />
+        </menu>
+    </item>
+
+    <item android:title="@string/rate_me_on_play_store">
+        <menu>
+            <item
+                android:id="@+id/nav_rate"
+                android:icon="@drawable/ic_google_play_rate"
+                android:title="@string/rate_me"/>
+        </menu>
+    </item>
+
+
+
+</menu>

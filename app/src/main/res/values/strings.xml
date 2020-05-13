@@ -5,4 +5,19 @@
     <string name="more_information">More Information</string>
     <string name="surrounding_cities">Surrounding Cities</string>
     <string name="close">Close</string>
+    <string name="show_as_map">Show as map</string>
+    <string name="show_as_list">Show as list</string>
+    <string name="info">Info</string>
+    <string name="instructions">Instructions</string>
+    <string name="rate_me_on_play_store">Rate me on Play Store</string>
+    <string name="rate_me">Rate me</string>
+    <string name="view">View</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Open navigation close</string>
+    <string name="magnitude">Magnitude \u0020</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="_1_5"><![CDATA[< 1.5]]></string>
+    <string name="_2_5"><![CDATA[< 2.5]]></string>
+    <string name="__2_5"><![CDATA[> 2.5]]></string>
 </resources>

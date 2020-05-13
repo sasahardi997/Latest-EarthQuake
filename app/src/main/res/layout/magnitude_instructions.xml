@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:minWidth="300dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="30dp"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/yellow_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_place_yellow"/>
+
+        <TextView
+            android:id="@+id/yellow_magnitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magnitude"/>
+
+        <TextView
+            android:id="@+id/yellow_sum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_1_5"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:minHeight="30dp"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/green_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_place_green"/>
+
+        <TextView
+            android:id="@+id/green_magnitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magnitude"/>
+
+        <TextView
+            android:id="@+id/green_sum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_2_5"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="30dp"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/red_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_place_red"/>
+
+        <TextView
+            android:id="@+id/red_magnitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magnitude"/>
+
+        <TextView
+            android:id="@+id/red_sum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/__2_5"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dismiss_instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dismiss"
+        android:textColor="@color/colorAccent"
+        android:textStyle="italic"
+        android:textSize="20sp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>

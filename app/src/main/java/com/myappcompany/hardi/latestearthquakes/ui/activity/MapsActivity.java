@@ -1,24 +1,36 @@
 package com.myappcompany.hardi.latestearthquakes.ui.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,6 +48,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.navigation.NavigationView;
 import com.myappcompany.hardi.latestearthquakes.R;
 import com.myappcompany.hardi.latestearthquakes.model.EarthQuake;
 import com.myappcompany.hardi.latestearthquakes.adapter.CustomInfoWindow;
@@ -47,8 +60,9 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
+        NavigationView.OnNavigationItemSelectedListener{
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -59,36 +73,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ProgressBar progressBar;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private BitmapDescriptor[] iconColors;
-    private Button showListBtn;
+    private DrawerLayout drawer;
+
+    private Location myLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setupDrawer();
 
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.VISIBLE);
-
-        showListBtn = findViewById(R.id.showListBtn);
-        showListBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MapsActivity.this, QuakesListActivity.class));
-            }
-        });
-
-        iconColors = new BitmapDescriptor[]{
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA),
-                //BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
-        };
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -96,6 +92,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         queue = Volley.newRequestQueue(this);
         getEarthQuakes();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)){
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -109,7 +114,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.ic_icon_android_location));
+                markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude()));
 
+                mMap.addMarker(markerOptions);
+                myLocation = location;
             }
 
             @Override
@@ -184,7 +194,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .getTime());
 
                         MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.icon(iconColors[Constants.randomInt(iconColors.length, 0)]);
+
+                        //Marker color depends on magnitude
+                        double mag = properties.getDouble("mag");
+                        if (mag <= 1.5){
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                        } else if (mag > 1.5 &&  mag <= 2.5 ){
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                        } else if(mag > 2.5){
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                        }
+
                         markerOptions.title(earthQuake.getPlace());
                         markerOptions.position(new LatLng(lat, lon));
                         markerOptions.snippet("Magnitude: " + earthQuake.getMagnitude() + "\n" +
@@ -330,5 +350,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public boolean onMarkerClick(Marker marker) {
         return false;
+    }
+
+    private void setupDrawer(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer = findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
+        navigationView.setNavigationItemSelectedListener((NavigationView.OnNavigationItemSelectedListener) this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.nav_show_map:
+                drawer.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.nav_show_list:
+                startActivity(new Intent(MapsActivity.this, QuakesListActivity.class));
+                break;
+            case R.id.nav_info:
+                magnitudeInstructions();
+                break;
+            case R.id.nav_rate:
+                showMyLocation();
+                break;
+        }
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void magnitudeInstructions(){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.magnitude_instructions);
+
+        TextView dismissInstructions = dialog.findViewById(R.id.dismiss_instructions);
+        dismissInstructions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    private void showMyLocation(){
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(getApplicationContext()));
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerClickListener(this);
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.ic_icon_android_location));
+        markerOptions.position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+
+        mMap.addMarker(markerOptions);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 15));
     }
 }
